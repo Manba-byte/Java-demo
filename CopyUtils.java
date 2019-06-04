@@ -1,0 +1,43 @@
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+
+/**
+ * @author wh
+ * @description
+ * @date 2019/6/4
+ */
+
+public class CopyUtils {
+    public static void Copy(Object source, Object dest) throws Exception {
+        // 获取属性
+        BeanInfo sourceBean = Introspector.getBeanInfo(source.getClass(),Object.class);
+        PropertyDescriptor[] sourceProperty = sourceBean.getPropertyDescriptors();
+
+        BeanInfo destBean = Introspector.getBeanInfo(dest.getClass(),Object.class);
+        PropertyDescriptor[] destProperty = destBean.getPropertyDescriptors();
+
+        try {
+            for (int i = 0; i < sourceProperty.length; i++) {
+
+                for (int j = 0; j < destProperty.length; j++) {
+                    if (sourceProperty[i].getName().equals(destProperty[j].getName())  && sourceProperty[i].getPropertyType() == destProperty[j].getPropertyType()) {
+                        // 调用source的getter方法和dest的setter方法
+                        destProperty[j].getWriteMethod().invoke(dest,sourceProperty[i].getReadMethod().invoke(source));
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new Exception("属性复制失败:" + e.getMessage());
+        }
+    }
+    public static void main(String[] args) throws Exception{
+        UserDTO userDTO = new UserDTO(12,"小明","深圳","龙华","18814175200");
+        User user = new User();
+        System.out.println(user);
+        Copy(userDTO,user);
+        System.out.println(user);
+    }
+}
+
